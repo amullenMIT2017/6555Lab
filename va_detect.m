@@ -70,9 +70,9 @@ filteredData = filter(B,1,ecg_data);
 % threshold = 1.1792e+03;
 
 % "Adaptive threshold" Take average of max(abs(correlation))
-% valsToAve = [];
-valsToAve = zeros(1,3);
-for j = 1:3
+valsToAve = zeros(121,5);
+% valsToAve = zeros(1,5);
+for j = 1:5
     seg = filteredData(((j-1)*frame_step+1):((j-1)*frame_step+frame_length));
     
     % Generate the data describing the peaks in the signal
@@ -80,10 +80,16 @@ for j = 1:3
     % Find the "true peaks" with prominence
     [MAX,MAXIN] = max(p);
     
-    lowBound  = locs(MAXIN) - 50;
-    highBound = locs(MAXIN) + 50;
+    lowBound  = locs(MAXIN) - 60;
+    highBound = locs(MAXIN) + 60;
     
- 
+    if highBound > 2500
+        p(MAXIN) = 0;
+        [MAX,MAXIN] = max(p);
+        lowBound  = locs(MAXIN) - 60;
+        highBound = locs(MAXIN) + 60;        
+    end
+   
     
     sampleBeat = seg(lowBound:highBound);
     close all
@@ -93,21 +99,29 @@ for j = 1:3
     
     matchFiltCoeff = fliplr(sampleBeat);
     
-%     valsToAve = [valsToAve;matchFiltCoeff];
+    valsToAve(:,j) = matchFiltCoeff;
 %     figure;
 %     plot(seg)
 %     hold on
 %     scatter(locs(MAXIN),pks(MAXIN));
+    finalMatchFilt = mean(valsToAve,2);
+
+end
+% figure;
+% stem(finalMatchFilt)
     
-    
+% Set the thresholds using hte matched filter method
+potentialThres = zeros(1,5);
+for k = 1:5
     filteredSeg = filter(B,1,seg);   
     %  Perform computations on the segment . . .
-    correlation = filter(matchFiltCoeff,1,filteredSeg);    
-    
-    valsToAve(j) = max(abs(correlation));
+    correlation = filter(finalMatchFilt,1,filteredSeg);    
+
+    potentialThres(k) = max(abs(correlation));
+
+    % Take 80% of the threshold at the beginning
 end
-% Take 80% of the threshold at the beginning
-threshold = max(valsToAve)*0.8;
+threshold = mean(potentialThres)*0.75;
 
 
 % So far our approaches at aboslute thresholds are unsuccessful
@@ -124,7 +138,7 @@ for i = 1:frame_N
     seg = filteredData(((i-1)*frame_step+1):((i-1)*frame_step+frame_length));
     filteredSeg = filter(B,1,seg);   
     %  Perform computations on the segment . . .
-    correlation = filter(matchFiltCoeff,1,filteredSeg);
+    correlation = filter(finalMatchFilt,1,filteredSeg);
     close all
     figure(1);
     subplot(2,1,1)
@@ -143,3 +157,5 @@ for i = 1:frame_N
 end
 figure;
 stem(allCorrelation)
+hold on
+line([0,60],[threshold, threshold]);
