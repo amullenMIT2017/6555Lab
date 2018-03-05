@@ -94,6 +94,7 @@ impz(B,1);
  yFiltered = filter(B,1,subSample);
  figure;
  plot(subSampleTime,yFiltered)
+ save('filteredSinusRhythm.mat','yFiltered');
  hold on
  plot(subSampleTime,subSample)
  xlabel('Time (sec)')
