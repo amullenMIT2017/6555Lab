@@ -48,6 +48,7 @@ alarm = zeros(frame_N,1);	% initialize output signal to all zeros
 t = ([0:frame_N-1]*frame_step+frame_length)/Fs;
 
 % Generate filter for the data
+% This is the same filter that was used in part 1 of the lab.
 HPF = 29.38/125;
 LPF = 5.615/125;
 
@@ -55,80 +56,53 @@ B = fir1(400,[LPF,HPF],'bandpass');
 
 filteredData = filter(B,1,ecg_data);   
 
-
-
-% Generate the matched filter for detection
-% load('perfectWave.mat')
-% matchFiltCoeff = fliplr(perfectWave);
-% 
-% figure;
-% plot(filteredData)
-
-% Generate the thresholds for the matched filter (based on data sample from sample code)
-% Updated from 600
-%threshold = 1.4913e+03;
-% threshold = 1.1792e+03;
-
 % "Adaptive threshold" Take average of max(abs(correlation))
+% Our goal is to make an adaptive threshold and adaptive matched filter
+% In order to do this, we make an assumption that the first 5 segements of
+% data are a patient's "healthy" baseline levels
+% Prior to making a patient specific matched filter, the detection
+% algorithm did a poor job of identifying differences.
 valsToAve = zeros(121,5);
-% valsToAve = zeros(1,5);
 for j = 1:5
     seg = filteredData(((j-1)*frame_step+1):((j-1)*frame_step+frame_length));
     
     % Generate the data describing the peaks in the signal
+    % Use the prexisiting findpeaks algorithm to get valuable information.
     [pks,locs,w,p] = findpeaks(seg);
     % Find the "true peaks" with prominence
     [MAX,MAXIN] = max(p);
     
     lowBound  = locs(MAXIN) - 60;
     highBound = locs(MAXIN) + 60;
-    
+    % If the most prominent peak came at the end of the arary, updated so
+    % you don't overflow.
     if highBound > 2500
         p(MAXIN) = 0;
         [MAX,MAXIN] = max(p);
         lowBound  = locs(MAXIN) - 60;
         highBound = locs(MAXIN) + 60;        
     end
-   
-    
+    % Take a sample data segment to gerenate the matched filter from
     sampleBeat = seg(lowBound:highBound);
+    % Visualize data
     close all
     figure(1);
     stem(sampleBeat)
-    
-    
+    % Flip the filter for preparation
     matchFiltCoeff = fliplr(sampleBeat);
-    
+    % Generate five different PQRST complexes to average together
     valsToAve(:,j) = matchFiltCoeff;
-%     figure;
-%     plot(seg)
-%     hold on
-%     scatter(locs(MAXIN),pks(MAXIN));
     finalMatchFilt = mean(valsToAve,2);
-
-end
-% figure;
-% stem(finalMatchFilt)
-    
-% Set the thresholds using hte matched filter method
+end    
+% Set the thresholds using the matched filter method
 potentialThres = zeros(1,5);
 for k = 1:5
-    filteredSeg = filter(B,1,seg);   
-    %  Perform computations on the segment . . .
-    correlation = filter(finalMatchFilt,1,filteredSeg);    
-
+    filteredSeg = filter(B,1,seg);
+    correlation = filter(finalMatchFilt,1,filteredSeg);
     potentialThres(k) = max(abs(correlation));
-
-    % Take 80% of the threshold at the beginning
 end
+% Take 75% of the mean threshold determined by baseline levels of overlap
 threshold = mean(potentialThres)*0.75;
-
-
-% So far our approaches at aboslute thresholds are unsuccessful
-
-% Options: pass in a time stamp of "good data"
-% Make our filter coefficients more robust and more generalized
-
 
 % Analysis loop: each iteration processes one frame of data
 %----------------------------------------------------------
@@ -149,13 +123,9 @@ for i = 1:frame_N
         alarm(i) = 1;
     end
     allCorrelation(i) = max(abs(correlation));
-%     subplot(2,)
-    %  Decide whether or not to set alarm . . .
-%     if something or other . . .
-%         alarm(i) = 1;
-%     end
 end
 figure;
+% Plot all the datas that you use to determine alarm and plot the threshold
 stem(allCorrelation)
 hold on
 line([0,60],[threshold, threshold]);
