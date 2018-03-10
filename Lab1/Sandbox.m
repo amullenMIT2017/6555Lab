@@ -23,23 +23,20 @@ noiseSampleTime = t(startTimeSample:startTimeSample+tenSecondSample);
 noiseSample = ecg(startTimeSample:startTimeSample+tenSecondSample);
 
 Fs = 250;
-
+figure;
 [Pxx,F]= pwelch(subSample,[],[],[],Fs);
 dbPxx = pow2db(Pxx);
-figure;
 plot(F,dbPxx)
 xlabel('Frequency (Hz)')
 ylabel('Power (dB)')
-%% TODO fix the title
 title('Welchs Method Baseline')
-
+figure;
 [PxxNoise,FNoise] = pwelch(noiseSample,[],[],[],Fs);
 dbPxxNoise = pow2db(PxxNoise);
 figure;
 plot(F,dbPxxNoise)
 xlabel('Frequency (Hz)')
 ylabel('Power (dB)')
-%% TODO fix the title
 title('Welchs Method Noise')
 
 
@@ -51,6 +48,7 @@ plot(F,dbPxx);
 legend('Noise','Baseline')
 xlabel('Frequency (Hz)')
 ylabel('Power (dB)')
+title('Welchs Method Noise & Baseline Compared')
 
 % High cutoff of 36 Hz
 % Low cutoff of 1.2 Hz
@@ -65,7 +63,7 @@ HPF = 29.38/125;
 LPF = 5.615/125;
 
 B = fir1(40,[LPF,HPF],'bandpass');
-figure(4);
+figure;
 
 [mag,frq] = freqz(B,1,512,250);
 dbFilterGain = mag2db(abs(mag));
@@ -88,6 +86,7 @@ legend('Filter','Noise','Baseline')
 
 figure;
 freqz(B,1,512);
+title('Frequency Response Profile (Freqz)')
 figure();
 impz(B,1);
 
@@ -105,7 +104,7 @@ impz(B,1);
  
  
  
-  yFilteredNoise = filter(B,1,noiseSample);
+ yFilteredNoise = filter(B,1,noiseSample);
  figure;
  subplot(2,1,1);
  plot(noiseSampleTime,yFilteredNoise)
