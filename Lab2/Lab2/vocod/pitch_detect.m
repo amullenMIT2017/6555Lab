@@ -46,18 +46,19 @@ clippedOutput = cclip(x,minUnderlying,maxUnderlying);
 % Compute the autocorrelation of the segment...
 CClip = xcorr(clippedOutput);
 
+
 % Find the maximum peak following Rx[0] by making the proper function call to
 % "peak.m"...
 indexTrunc = ceil(size(CClip,1)/2);
 
-[peakval, peakIndex] = peak(CClip(indexTrunc:end));
+[peakval, peakIndex] = peak(CClip(indexTrunc:indexTrunc + 0.03*8000));
 % autoFundaFreqClip = 1/(timeDif*1e-3);
 
 
 % Determine if the segment is unvoiced based on the 'voicing strength' (the
 % ratio of the autocorrelation function at the peak pitch lag to the
 % autocorrelation function at lag=0)...
-voicingPower = CClip(indexTrunc) / peakval;
+voicingPower = peakval /CClip(indexTrunc) ;
 
 
 % If voicing strength is less than unvoiced_thresh, call it unvoiced and set

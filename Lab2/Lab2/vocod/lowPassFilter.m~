@@ -1,0 +1,6 @@
+function y = lowPassFilt(x)
+% Andrew Mullen & Yichu Jin 3/18/2018
+
+fir1
+
+end
