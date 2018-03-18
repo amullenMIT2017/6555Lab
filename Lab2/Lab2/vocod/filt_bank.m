@@ -36,9 +36,7 @@ bank = zeros(L,N);
 % Choose the cutoff frequency to obtain a bandwidth of B.
 % We suggest that you use a Kaiser window with beta = 3.
 % Given almost all of these paramaters
-% Make the lowPass cutoff half of bandwidth because filter bank window only
-% should cover half of the desired region +/-
-lowPass = B/2;
+lowPass = B;
 win = kaiser(L,3);
 lpf = fir1(L-1,lowPass/Fs,win);
 
@@ -64,6 +62,7 @@ for i = 1:N
 
     % Shift lowpass prototype to center frequency (see Problem Set 2, #1). 
     % Do you need to magnitude-adjust?
-    bank(:,i) = lpf .* cos(2*pi*cf*t);
+    bank(:,i) = lpf .* cos(2*pi*cf*t)*2;
+ 
 
 end
