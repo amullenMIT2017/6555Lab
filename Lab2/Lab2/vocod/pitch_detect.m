@@ -30,21 +30,43 @@ Fs = 8000;  % sample rate = 8 kHz
 % First, remove the DC value by subtracting the mean.
 x = x - mean(x);
 
-% Then find the minimum and maximum samples and center clip using "cclip.m"...
+% Then find the minimum and maximum samples and center clip using "cclip.m"..
+
+minUnderlying = clip_thresh*min(x);
+maxUnderlying = clip_thresh*max(x);
+clippedOutput = cclip(x,minUnderlying,maxUnderlying);
+% figure;
+% plot(tSub,clippedOutput)
+% xlabel('Time (msec)')
+% ylabel('Clipped Signal (mV)')
+% title('Clipped Output of filtered Signal')
+
 
 
 % Compute the autocorrelation of the segment...
-
+CClip = xcorr(clippedOutput);
 
 % Find the maximum peak following Rx[0] by making the proper function call to
 % "peak.m"...
+indexTrunc = ceil(size(CClip,1)/2);
+
+[peakval, peakIndex] = peak(CClip(indexTrunc:end));
+% autoFundaFreqClip = 1/(timeDif*1e-3);
 
 
 % Determine if the segment is unvoiced based on the 'voicing strength' (the
 % ratio of the autocorrelation function at the peak pitch lag to the
 % autocorrelation function at lag=0)...
+voicingPower = CClip(indexTrunc) / peakval;
 
 
 % If voicing strength is less than unvoiced_thresh, call it unvoiced and set
 % pitch = 0, otherwise compute the pitch...
+if voicingPower > unvoiced_thresh
+    tLag = peakIndex/Fs;
+    pitch = 1/tLag;
+else
+    pitch = 0;
+end
+
 

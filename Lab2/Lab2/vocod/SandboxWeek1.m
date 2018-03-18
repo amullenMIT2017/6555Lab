@@ -27,10 +27,13 @@ title('Sample Audio Recording 162')
 % empahsis on ay in tray
 
 % Time (2.5 sec)
-samIndexVowelSt = 2.64*8000;
+samIndexVowelSt = 2.642*8000;
 addedDif = 0.1*8000;
 sampleVowel = cw161(samIndexVowelSt:samIndexVowelSt+addedDif);
 soundsc(sampleVowel);
+
+% Remove the DC offset
+% sampleVowel = sampleVowel - mean(sampleVowel);
 
 figure;
 tSub = linspace(0,100,size(sampleVowel,1));
@@ -46,7 +49,7 @@ pwelch(sampleVowel,[],[],[],Fs)
 
 % Filter the vowel into  particular frequency band
 % We don't care about the phase components of a the underlying signal
-filt = fir1(40,500/Fs,'low');
+filt = fir1(60,500/Fs,'low');
 % Analyze the filter we designed
 figure;
 freqz(filt,1,512,Fs)
@@ -75,9 +78,53 @@ t = linspace(-100,100,size(C,1));
 figure;
 plot(t,C);
 xlim([-30,30])
+xlabel('Time Lag (msec)')
+ylabel('Autocorrelation')
+title('')
 
 % Empirically determined lag between autocorrelation to be 10.12 msec between
 % the peaks
+% This was done by hand
 fundamentalPeriod = 10.12e-3;
 fundamentalFrequnecy = 1/fundamentalPeriod;
 
+% Create automatic method using the cliped function
+% Set the min Underlying to the min value of the signal to only show
+% positive clipping of the signal.
+% The periodicity of the negative clipped values is not as detectable as
+% the positive, subsequently, we decided to focus on 
+minUnderlying = min(filtOutput);
+maxUnderlying = 0.75*max(filtOutput);
+clippedOutput = cclip(filtOutput,minUnderlying,maxUnderlying);
+figure;
+plot(tSub,clippedOutput)
+xlabel('Time (msec)')
+ylabel('Clipped Signal (mV)')
+title('Clipped Output of filtered Signal')
+
+% Use autocorrelation
+CClip = xcorr(clippedOutput);
+figure;
+plot(t,CClip);
+xlim([-30,30])
+xlabel('Time Lag (msec)')
+ylabel('Autocorrelation')
+title('Autocorrelation Around Clipped Signal')
+
+
+% Empiricially determine the differences in peaks
+sampOne = 0;
+sampTwo = 9.626;
+fundaPeriodClip = (sampTwo - sampOne)*1e-3;
+fundaFreqClip = 1/fundaPeriodClip;
+
+%Truncate the signal for peak.m
+indexTrunc = ceil(size(CClip,1)/2);
+figure;
+plot(CClip(indexTrunc:end))
+
+
+% Find Peaks for automatic detections of fundamental Freq
+[peakval, peakIndex] = peak(CClip(indexTrunc:end));
+timeDif = peakIndex/Fs;
+autoFundaFreqClip = 1/(timeDif);
