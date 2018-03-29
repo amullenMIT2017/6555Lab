@@ -49,9 +49,8 @@ CClip = xcorr(clippedOutput);
 
 % Find the maximum peak following Rx[0] by making the proper function call to
 % "peak.m"...
-indexTrunc = ceil(size(CClip,1)/2);
-
-[peakval, peakIndex] = peak(CClip(indexTrunc:indexTrunc + 0.03*8000));
+indexTrunc = ceil(size(CClip,1)/2); 
+[peakval, peakIndex] = peak(CClip(indexTrunc:end));
 % autoFundaFreqClip = 1/(timeDif*1e-3);
 
 

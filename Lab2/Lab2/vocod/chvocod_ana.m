@@ -54,9 +54,8 @@ band_envelopes = zeros(num_frames,N_bands);
 % since we're interested in pitch, which is 80-320 Hz for adult voices.
 % Be careful: the lowpass filtered signal should be used as the input
 % to the pitch detector, but not to the filter bank!
-
-xlpf =
-
+b = fir1(60,500/Fs,'low');
+xlpf = filter(b,1,x);
 
 % Here's the loop. Each iteration processes one frame of data.
 
@@ -69,14 +68,13 @@ for i = 1:num_frames
         endseg = length(xlpf);
     end
     seg = xlpf(startseg:endseg);
-
     % Call your pitch detector...
-    pitch(i) =
+    pitch(i) = pitch_detect(seg);
 
 end;
 
 % Remove spurious values from pitch signal with median filter...
-
+pitch = medfilt1(pitch);
 
 %---------------------------------------------------------
 % Get "filter" parameters (determine band envelope values)
@@ -94,8 +92,9 @@ bank = filt_bank(N_bands,65);
 % In loop, process each band:
 for i = 1:N_bands
     %	Apply filter for this band (bank(:,i)) to input x (not xlpf)...
-
+    filtOut = filter(bank(:,i),1,x);
     % 	Take magnitude of signal and decimate.
     % 	(The matlab function 'decimate.m' includes lowpass filtering)...
-
+    subSampled = decimate(abs(filtOut),D);
+    band_envelopes(:,i) = subSampled;
 end

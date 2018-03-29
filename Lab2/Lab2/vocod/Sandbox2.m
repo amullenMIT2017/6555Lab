@@ -7,6 +7,7 @@ N = 18;
 B = 200;
 
 bank = filt_bank(N,L,Fs,B);
+%This is where we determine the copmonents that we put in our filter bank
 bank = sum(bank,2);
 F = 1:4000;
 
