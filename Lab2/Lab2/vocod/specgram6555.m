@@ -54,7 +54,10 @@ end;
 
 % Plot the spectrogram
 %---------------------
+figure;
 surf(T,F,10*log10(abs(P)+os),'EdgeColor','none');
 view(0,90); box on; axis xy; axis tight; colormap(1-gray); colorbar;
 xlabel('Time (sec)');
 ylabel('Frequency (Hz)');
+h = colorbar;
+ylabel(h, 'Power (dB)')
