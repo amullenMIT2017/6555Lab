@@ -1,4 +1,4 @@
-% close all
+close all
 clear
 clc
 
@@ -23,15 +23,15 @@ filt = fir1(60,500/Fs,'low');
 filtOutput = filter(filt,1,sampleVowel);
 
 Fny = Fs/2;
-[coeff,gain] = lpcoef(sampleVowel,100);
+[coeff,gain] = lpcoef(sampleVowel,12);
 F = 0:Fny/1024:Fny-Fny/1024;
 %calculating the frequency response of the all pole filter
 H = abs(freqz(gain,coeff,F,Fs)); %the order of coefficients is B,A
 figure;
 hold all;
-plot(F,H);
+plot(F,mag2db(H));
 Y = abs(fft(sampleVowel,2048));
-plot(F,Y(1:length(H)));
+plot(F,mag2db(Y(1:length(H))));
 %xlim([0 600]);
 title('Frequency responce of the all pole filter');
 xlabel('Frequency (Hz)');
