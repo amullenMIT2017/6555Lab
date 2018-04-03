@@ -42,13 +42,17 @@ for i = 1:len
 
     % Compute the LPC coefficients and gain of the frame ('lpcoef')
     % and store in coeff matrix and gain vector...
-
+    [coeff(:,i), gain(i)] = lpcoef(seg, p);
+    
     % Compute the LP error signal
+    err = filter(coeff(:,i),1,seg);
 
     % Detect voicing and pitch for this frame by applying 500 Hz lowpass filter
     % to error signal and then calling your pitch detector...
-
+    filt = fir1(60,500/Fs,'low');
+    filt_out = filter(filt,1,err);
+    pitch(i) = pitch_detect(filt_out);
 end;  		% end for loop
 
 % Remove spurious values from pitch signal with median filter...
-
+pitch = medfilt1(pitch);

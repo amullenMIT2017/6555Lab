@@ -36,26 +36,30 @@ y = zeros(nframes*frlen,1);
 filt_state = zeros(nrows-1,1);
 init_delay = 0;	          % delay to first pitch pulse
 
-
 % Loop over frames to generate total source signal
 for i = 1:nframes
     % Pitch value for each frame indicates if voicing source or noise source
     if pitch(i) > 0
         % Compute pitch period (in samples) and generate impulse train
         % ('pulse_train'). Be sure to save new delay for next frame...
-
+        [source, init_delay] = pulse_train(floor(Fs/pitch(i)), frlen, init_delay);
     else
         % Generate noise source ('randn')...
-
+        source = randn(frlen, 1);
     end;
 
     % Normalize source signal to have unit energy
     % (to be consistent with assumption made in the analysis stage)
     % Take care not to divide by zero...
-
+    
+    if norm(source)  ~= 0
+        source = source/norm(source) ;
+    end
+    
     %  Now, filter source signal through LP model filter, keeping track of the
     %  filter state to avoid discontinuities...
-
+    [output, filt_state] = filter(gain(i), coeff(:,i), source, filt_state);
+    
     % Insert frame into output signal...
-    y((i-1)*frlen+1:i*frlen) =
+    y((i-1)*frlen+1:i*frlen) = output;
 end;
