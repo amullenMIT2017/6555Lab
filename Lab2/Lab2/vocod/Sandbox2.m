@@ -15,8 +15,12 @@ figure;
 
 Band = abs(freqz(bank(:,1),1,F,Fs)); 
 plot(F,Band,'r');
-for z=2:N
+for z=3:2:N
     Band = abs(freqz(bank(:,z),1,F,Fs));
     hold on;
     plot(F,Band,'b'); 
 end
+
+ylabel('Magnitude Gain')
+xlabel('Frequency (Hz)')
+title('Alternating Filter Bank Components')
