@@ -40,7 +40,7 @@ end
 % The noise model is the difference between the observation and the desired
 % signal
 % **** complete this
-noise = observation - desired;
+noise = desired - observation;
 
 % Wiener filter
 %--------------
@@ -50,20 +50,18 @@ Nf2 = pwelch(noise,[],[],[],[],'twosided');
 % Create frequency response of Wiener filter
 %-------------------------------------------
 % **** complete this
-H = Sf2./(Sf2+Nf2);
-figure;
-freqz(H,Fs)
+H = [];
 
 % Compute impulse response (filter coefficients) from 
 % frequency response of Wiener filter
 %----------------------------------------------------
 % *** complete this
-h = ifft(H);
+h = [];
 
 % Apply impulse response of Wiener filter to observation using fftfilt
 %---------------------------------------------------------------------
 % *** complete this
-yhat = fftfilt(h,observation);
+yhat = [];
 
 % Plot the data?
 %---------------

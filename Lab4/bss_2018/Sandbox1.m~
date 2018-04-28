@@ -70,10 +70,47 @@ noiseVar = var(noise1);
 % Question 3 plot the pdfs of the signals
 
 figure;
-histogram(mecg1,60,'Normalization','pdf')
+histMaternal = histogram(mecg1,100,'Normalization','pdf');
 title('PDFs of Recorded Signals')
 xlabel('Recorded Voltage (mV)')
 hold on;
-histogram(fecg1,60,'Normalization','pdf')
-histogram(noise1,60,'Normalization','pdf')
-legend('','','')
+histFetal = histogram(fecg1,100,'Normalization','pdf');
+histNoise = histogram(noise1,100,'Normalization','pdf');
+legend('Maternal ECG','Fetal ECG','Noise')
+
+kurtosisMaternal = kurtosis(mecg1);
+kurtosisFetal = kurtosis(fecg1);
+kurtosisNoise = kurtosis(noise1);
+
+subplot(3,1,1)
+histogram(mecg1,100,'Normalization','pdf')
+title('PDFs of Maternal ECG')
+xlabel('Recorded Voltage (mV)')
+hold on
+subplot(3,1,2)
+histogram(fecg1,100,'Normalization','pdf')
+title('PDFs of Fetal ECG')
+xlabel('Recorded Voltage (mV)')
+subplot(3,1,3)
+histogram(noise1,100,'Normalization','pdf')
+title('PDFs of Noise')
+xlabel('Recorded Voltage (mV)')
+
+% Question 4
+
+figure;
+[PxxFetal,FFetal] = pwelch(fecg1,[],[],[],256);
+[PxxMaternal,FMaternal] = pwelch(mecg1,[],[],[],256);
+plot(FFetal,PxxFetal)
+xlabel('Frequency (Hz)')
+ylabel('Power')
+title('Fetal and Maternal ECG Welch Spectral Content')
+hold on
+plot(FMaternal,PxxMaternal)
+legend('Fetal ECG','Maternal ECG')
+
+% Genearet the wiener filters
+
+wienerFilter(fecg1,)
+
+

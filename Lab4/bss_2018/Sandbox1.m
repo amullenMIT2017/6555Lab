@@ -78,9 +78,9 @@ histFetal = histogram(fecg1,100,'Normalization','pdf');
 histNoise = histogram(noise1,100,'Normalization','pdf');
 legend('Maternal ECG','Fetal ECG','Noise')
 
-kurtosisMaternal = kurtosis(histMaternal.Values);
-kurtosisFetal = kurtosis(histFetal.Values);
-kurtosisNoise = kurtosis(histNoise.Values);
+kurtosisMaternal = kurtosis(mecg1);
+kurtosisFetal = kurtosis(fecg1);
+kurtosisNoise = kurtosis(noise1);
 
 subplot(3,1,1)
 histogram(mecg1,100,'Normalization','pdf')
@@ -108,5 +108,9 @@ title('Fetal and Maternal ECG Welch Spectral Content')
 hold on
 plot(FMaternal,PxxMaternal)
 legend('Fetal ECG','Maternal ECG')
+
+% Genearet the wiener filters
+
+[yhat, H] = wienerFilter(fecg1,clinicalObs)
 
 
