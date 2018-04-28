@@ -113,4 +113,101 @@ legend('Fetal ECG','Maternal ECG')
 
 [yhat, H] = wienerFilter(fecg1,clinicalObs)
 
+% SVD
 
+load('data/X.dat')
+plot3ch(X);
+
+[U,S,V] = svd(X,0);
+plot3dv(V(:,1),S(1,1),'red')
+plot3dv(V(:,2),S(2,2),'blue')
+plot3dv(V(:,3),S(3,3),'green')
+
+figure;
+subplot(3,1,1)
+plot(tVec,U(:,1))
+title('Mixture of Signals')
+subplot(3,1,2)
+plot(tVec,U(:,2))
+title('Fetal Like Heartbeat')
+subplot(3,1,3)
+plot(tVec,U(:,3))
+title('Mixture of Signals, maybe more dominated by Materanl ECG')
+xlabel('Time (sec)')
+
+% Plot the eigenspecturm of S
+figure;
+stem(S)
+xlim([0,4])
+xlabel('Column Number')
+ylabel('Eigenspectrum Magnitude')
+title('Eigenspectrum of S')
+
+% Alter the eingespecturm to only keep the fetal ECG eigenvalue
+% and reinvert
+Saltered = S;
+Saltered(1,1) = 0;
+Saltered(3,3) = 0;
+
+SVDReconstruct = U*Saltered*V;
+figure;
+subplot(3,1,1)
+plot(tVec,SVDReconstruct(:,1))
+ylabel('Ch1')
+title('Channels of Reconstructed Signal Using SVD')
+subplot(3,1,2)
+hold on
+ylabel('Ch2')
+plot(tVec,SVDReconstruct(:,2))
+subplot(3,1,3)
+hold on
+ylabel('Ch3')
+plot(tVec,SVDReconstruct(:,3))
+xlabel('Time (sec)')
+
+% Do ICA
+
+[W, ZHAT] = ica(X.');
+WInvers = inv(W);
+
+% Make a scatter plot of the data
+plot3ch(X);
+plot3dv(WInvers(:,1))
+plot3dv(WInvers(:,2))
+plot3dv(WInvers(:,3))
+
+% Plot the identified data from ICA
+figure;
+subplot(3,1,1)
+
+plot(tVec,ZHAT(1,:))
+title('Maternal Signal Estiamted ICA')
+ylabel('Component 1')
+subplot(3,1,2)
+plot(tVec,ZHAT(2,:))
+title('Noise Signal Estimated ICA')
+ylabel('Component 2')
+subplot(3,1,3)
+plot(tVec,ZHAT(3,:))
+title('Fetal Signal Estimated ICA')
+ylabel('Component 3')
+xlabel('Time (sec)')
+
+% Eliminate all WInverse except the final column?
+WInverseAltered = WInvers;
+WInverseAltered(:,1:2) = 0;
+ICAReconstruction = WInverseAltered*ZHAT;
+
+% Plot the ICA Reconstructions
+figure
+subplot(3,1,1)
+plot(tVec,ICAReconstruction(1,:))
+title('ICA Reconstructions')
+ylabel('Channel 1')
+subplot(3,1,2)
+plot(tVec,ICAReconstruction(2,:))
+ylabel('Channel 2')
+subplot(3,1,3)
+plot(tVec,ICAReconstruction(3,:))
+ylabel('Channel 3')
+xlabel('Time (sec)')
