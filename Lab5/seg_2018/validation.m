@@ -39,3 +39,28 @@ gold_standard = mri_read(gold_standard_fn);
 %-------------
 figure; display_image(my_result,'My Result');
 figure; display_image(gold_standard,'Expert Result');
+
+
+% Generate the probability tables
+%-------
+% Expert Gray
+ GG = size(intersect(find(gold_standard == LABEL_GRAY), find(my_result == LABEL_GRAY)),1);
+ GW = size(intersect(find(gold_standard == LABEL_GRAY), find(my_result == LABEL_WHITE)),1);
+ GC = size(intersect(find(gold_standard == LABEL_GRAY), find(my_result == LABEL_CSF)),1);
+
+ % Expert White
+ WG = size(intersect(find(gold_standard == LABEL_WHITE), find(my_result == LABEL_GRAY)),1);
+ WW = size(intersect(find(gold_standard == LABEL_WHITE), find(my_result == LABEL_WHITE)),1);
+ WC = size(intersect(find(gold_standard == LABEL_WHITE), find(my_result == LABEL_CSF)),1);
+
+ % Expert CSF
+ CG = size(intersect(find(gold_standard == LABEL_CSF), find(my_result == LABEL_GRAY)),1);
+ CW = size(intersect(find(gold_standard == LABEL_CSF), find(my_result == LABEL_WHITE)),1);
+ CC = size(intersect(find(gold_standard == LABEL_CSF), find(my_result == LABEL_CSF)),1);
+ 
+ finalMat = [GG,WG,CG;
+     GW,WW,CW;
+     GC,WC,CC];
+
+ 
+

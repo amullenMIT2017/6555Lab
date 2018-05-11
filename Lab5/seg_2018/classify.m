@@ -137,7 +137,7 @@ hold on
 plot(gaussianWhite)
 plot(gaussianGrey)
 plot(gaussianCsf)
-legend('White Matter','Gray Matter','CSF','Gaussian Approximation White Matter','Gaussian Approximation Grey Matter','Gaussian Approximation CSF')
+legend('White Matter','Gray Matter','CSF','Gaussian Approximation White Matter','Gaussian Approximation Grey Matter','Gaussian Approximation CSF','Location','northwest')
 
 %------------------------------------------
 % Perform Maximum Likelihood Classification
@@ -170,12 +170,25 @@ for i = TEST_SLICES
 
     % Classify Image Pixels
     classification = zeros(size(img));
+    classification = classification(:);
     
     % put your ML classification code here
     % For each voxel find the maximum likelihood and its corresponding
     % Gaussian. Then and assign label values of the corresponding Gaussian
     % to that voxel.
     % ...
+    for iter = 1:size(w,1)
+        [Y,I] = max(w(iter,:));
+        if I == 1
+            classification(iter) = LABEL_WHITE;
+        elseif I == 2
+            classification(iter) = LABEL_GRAY;            
+        elseif I ==3
+            classification(iter) = LABEL_CSF;            
+        end
+    end
+    classification = reshape(classification, size(img));
+    
 
     % Display the image and classification
     [fpath,fname,ext] = fileparts(mri_fn);
@@ -189,5 +202,5 @@ for i = TEST_SLICES
     mri_write(classification, out_fn);
     fprintf(1,['Classification file %s has been written. ',...
         'Hit any key to continue.\n'],name);
-    pause;
+%     pause;
 end;

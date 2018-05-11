@@ -75,6 +75,6 @@ for i = TEST_SLICES
         figure(3); display_image(white_matter+gray_matter,...
             sprintf('Classification for Isolated Brain (Image %0.3d)',i));
         fprintf(1,'Hit any Key to continue\n');
-        pause;
+%          pause;
     end;
 end;
